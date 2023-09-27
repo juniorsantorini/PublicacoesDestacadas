@@ -1,8 +1,9 @@
-function carregarPublicacoesDestacadas() {
-  var publicacoesDestacadas = document.getElementById('publicacoes-destacadas');
+function carregarPublicacoes() {
+  var listaPublicacoesDestacadas = document.getElementById('publicacoes-destacadas');
+  var listaOutrasPublicacoes = document.getElementById('outras-publicacoes');
 
-  // Query para buscar publicações com a etiqueta "destaque"
-  var query = 'https://www.borapracima.pro/feeds/posts/default/-/destaque?alt=json';
+  // Query para buscar todas as publicações
+  var query = 'https://www.borapracima.pro/feeds/posts/default?alt=json';
 
   // Requisição AJAX para buscar as publicações
   var xhr = new XMLHttpRequest();
@@ -17,22 +18,39 @@ function carregarPublicacoesDestacadas() {
           var postTitle = entries[i].title.$t;
           var postURL = entries[i].link[4].href;
 
-          // Crie uma entrada de lista para cada publicação em destaque
+          // Verifique se a publicação possui a etiqueta "destaque"
+          var isDestaque = false;
+          if (entries[i].category) {
+            for (var j = 0; j < entries[i].category.length; j++) {
+              if (entries[i].category[j].term == 'destaque') {
+                isDestaque = true;
+                break;
+              }
+            }
+          }
+
+          // Crie uma entrada de lista para cada publicação
           var listItem = document.createElement('li');
           var link = document.createElement('a');
           link.href = postURL;
           link.textContent = postTitle;
           listItem.appendChild(link);
 
-          publicacoesDestacadas.appendChild(listItem);
+          // Adicione a entrada na lista apropriada (destacadas ou outras)
+          if (isDestaque) {
+            listaPublicacoesDestacadas.appendChild(listItem);
+          } else {
+            listaOutrasPublicacoes.appendChild(listItem);
+          }
         }
       } else {
-        publicacoesDestacadas.innerHTML = 'Nenhuma publicação em destaque encontrada.';
+        // Se nenhuma publicação for encontrada
+        listaOutrasPublicacoes.innerHTML = 'Nenhuma publicação encontrada.';
       }
     }
   };
   xhr.send();
 }
 
-// Chame a função para carregar as publicações em destaque
-carregarPublicacoesDestacadas();
+// Chame a função para carregar as publicações
+carregarPublicacoes();
